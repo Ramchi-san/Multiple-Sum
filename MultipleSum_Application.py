@@ -1,5 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QLineEdit, QTextEdit, QVBoxLayout, QPushButton
+from typing import List
 
 class MultipleSum_Application(QWidget):
     def __init__(self):
@@ -16,7 +17,7 @@ class MultipleSum_Application(QWidget):
         # Labels and Textboxes
         range_label = QLabel('Range:')
         self.range_entry = QLineEdit()
-        rangeExample_label = QLabel("Example: 'Lower limit : Upper limit' -> 1 : 10 ")
+        rangeExample_label = QLabel("Example: 'Lower limit - Upper limit' -> 1 : 10 ")
         app_layout.addWidget(range_label)
         app_layout.addWidget(self.range_entry)
         app_layout.addWidget(rangeExample_label)
@@ -46,11 +47,69 @@ class MultipleSum_Application(QWidget):
         self.setLayout(app_layout)
 
     def display_input(self):
-        range = self.range_entry.text()
-        factor = self.factor_entry.text()
+        range_string = self.range_entry.text()
+        factor_string = self.factor_entry.text()
+        factor = self.data_cleaner(range_string, factor_string)
+        lower_limit = factor.pop()
+        upper_limit = factor.pop()
+        factor_multiples = MultipleSum_Application.factor_multiples(factor, lower_limit, upper_limit)
+        multiples_sum = MultipleSum_Application.multiple_adder(factor_multiples)
+        factorMultiples_string = ""
+        for some_value in factor_multiples.items():
+            factorMultiples_string += f"[{some_value[0]}] = {some_value[1]}\n"
 
-        output_text = f"Range: {range}\nfactor: {factor}"
+        output_text = f"Range: {lower_limit} : {upper_limit}\nfactor: {factor}\nFactor Multiples{factorMultiples_string} Result: {multiples_sum}"
         self.output_display.setPlainText(output_text)
+
+    def data_cleaner(self, range_string, factor_string) -> List[int]:
+        range_string = range_string.replace(" ", "")
+        factor_string = factor_string.replace(" ", "")
+        lower_limit = int(range_string.split("-")[0])
+        upper_limit = int(range_string.split("-")[1])
+        factors = [int(_) for _ in factor_string.split(",")]
+        result = []
+        result.append(lower_limit)
+        result.append(upper_limit)
+        return result + factors 
+
+    """
+    The factor_multiples function is about finding the multiples of certain list of factors
+    storing them in a dictionary with the factors as the key and the list of multiples as the 
+    value
+    """ 
+    def factor_multiples(factors: List[int], lower_limit : int, upper_limit : int):
+        multiples = {}
+        for number in factors:
+            multiples[number] = MultipleSum_Application.multiple_finder(number, lower_limit, upper_limit)
+        return multiples
+    
+
+    """
+    The multiple_finder function is a utility function of factor_multiples
+    which determines the multiples of a number within a certain range.
+    """
+    def multiple_finder(factor: int, lower_limit : int, upper_limit: int) -> List[int]:
+        counter = 1
+        result = []
+        temp_result = 0
+        while int(temp_result) < upper_limit:
+            temp_result = factor * counter
+            if temp_result >= lower_limit and temp_result <= upper_limit:
+                result.append(temp_result)
+            counter+=1
+        return result
+    
+    """
+    The multiple_adder function is about adding all the multiples within a list
+    that is stored in a dictionary except those that are repeating.
+    """
+    def multiple_adder(multiples):
+        temp_copy = multiples.popitem()
+        popped_set = set(temp_copy[1])
+        for multiple_list in multiples.values():
+            popped_set = popped_set.union(set(multiple_list))
+        multiples[temp_copy[0]] = temp_copy[1]
+        return sum(popped_set)
 
     def clear_input(self):
         self.range_entry.clear()
