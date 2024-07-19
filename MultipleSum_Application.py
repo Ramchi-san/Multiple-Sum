@@ -17,7 +17,7 @@ class MultipleSum_Application(QWidget):
         # Labels and Textboxes
         range_label = QLabel('Range:')
         self.range_entry = QLineEdit()
-        rangeExample_label = QLabel("Example: 'Lower limit - Upper limit' -> 1 : 10 ")
+        rangeExample_label = QLabel("Example: 'Lower limit - Upper limit' -> 1 - 10 ")
         app_layout.addWidget(range_label)
         app_layout.addWidget(self.range_entry)
         app_layout.addWidget(rangeExample_label)
@@ -50,26 +50,34 @@ class MultipleSum_Application(QWidget):
         range_string = self.range_entry.text()
         factor_string = self.factor_entry.text()
         factor = self.data_cleaner(range_string, factor_string)
-        lower_limit = factor.pop()
-        upper_limit = factor.pop()
+        print(f"Final received items: {factor}")
+        lower_limit = factor.pop(0)
+        print(f"Lower limit: {lower_limit}")
+        upper_limit = factor.pop(0)
+        print(f"Upper limit: {upper_limit}")
         factor_multiples = MultipleSum_Application.factor_multiples(factor, lower_limit, upper_limit)
         multiples_sum = MultipleSum_Application.multiple_adder(factor_multiples)
         factorMultiples_string = ""
         for some_value in factor_multiples.items():
-            factorMultiples_string += f"[{some_value[0]}] = {some_value[1]}\n"
+            factorMultiples_string += f"\n\t[{some_value[0]}] = {some_value[1]}"
 
-        output_text = f"Range: {lower_limit} : {upper_limit}\nfactor: {factor}\nFactor Multiples{factorMultiples_string} Result: {multiples_sum}"
+        output_text = f"Range: {lower_limit} - {upper_limit}\nfactor: {factor}\nFactor Multiples:{factorMultiples_string} \nResult: {multiples_sum}"
         self.output_display.setPlainText(output_text)
 
+    #Cleared
     def data_cleaner(self, range_string, factor_string) -> List[int]:
         range_string = range_string.replace(" ", "")
         factor_string = factor_string.replace(" ", "")
         lower_limit = int(range_string.split("-")[0])
+        print(f"Lower limit: {lower_limit}")
         upper_limit = int(range_string.split("-")[1])
+        print(f"Upper limit: {upper_limit}")
         factors = [int(_) for _ in factor_string.split(",")]
         result = []
         result.append(lower_limit)
         result.append(upper_limit)
+        print(f"Initial Items:  {result}")
+        print(f"Final Items: {result + factors}")
         return result + factors 
 
     """
